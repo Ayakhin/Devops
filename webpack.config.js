@@ -24,6 +24,10 @@ module.exports = {
         use: "ts-loader", // Transpile TypeScript
         exclude: /node_modules/,
       },
+      {
+        test: /\.css$/i,     // Pour gérer les fichiers .css
+        use: ["style-loader", "css-loader"], 
+      },
     ],
   },
 
@@ -37,6 +41,7 @@ module.exports = {
     static: {
       directory: path.join(__dirname, "public"),
     },
+    historyApiFallback: true, 
     port: 3000,           // Ton app sera dispo ici → http://localhost:3000
     hot: true,            // Reload automatique (sans perdre l'état)
     open: true,           // Ouvre le navigateur automatiquement
