@@ -106,7 +106,7 @@ export default function OffcanvasNavbar() {
       </nav>
 
       {/* NAV-SCROLLER */}
-      <div className="nav-scroller bg-body shadow-sm">
+      <div className="nav-scroller bg-body shadow-sm fixed-top" style={{ top: '56px' }}>
         <nav className="nav" aria-label="Secondary navigation">
           <a className="nav-link active" aria-current="page" href="#">Dashboard</a>
           <a className="nav-link" href="#">
