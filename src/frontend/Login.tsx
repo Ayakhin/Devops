@@ -1,14 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { useNavigate } from 'react-router-dom';
 
 // =====================================================================
 // DÉFINITIONS ET SIMULATIONS D'API
 // =====================================================================
-
 interface LoginResponse {
     success: boolean;
     message: string;
 }
+// const navigate = useNavigate();
 
 // Fonction qui simule l'appel à votre API backend (l'endpoint Express /api/login)
 const simulateLoginAPI = async (email: string, password: string): Promise<LoginResponse> => {
@@ -17,7 +18,7 @@ const simulateLoginAPI = async (email: string, password: string): Promise<LoginR
 
     // Logique de validation simulée : utilisez ces identifiants pour réussir
     if (email === 'admin@devops.com' && password === 'motdepasse') {
-        return { success: true, message: 'Connexion réussie ! Redirection vers le tableau de bord...' };
+        return { success: true, message: 'Connexion réussie ! Redirection vers le tableau de bord...' };        
     } else {
         // Simuler une réponse 401
         return { success: false, message: 'Identifiants invalides. Veuillez réessayer.' };
@@ -54,6 +55,8 @@ const setBodyTheme = (theme: Theme) => {
  * et intégrant la logique de gestion du thème.
  */
 const Login: React.FC = () => {
+
+    const navigate = useNavigate(); // Add this at the top of the component
     // 1. Gestion de l'état du formulaire
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -108,6 +111,7 @@ const Login: React.FC = () => {
             if (response.success) {
                 setStatusMessage(response.message);
                 setIsError(false);
+                navigate('/home');
                 // Logique de succès (stockage du jeton, redirection, etc.)
             } else {
                 setStatusMessage(response.message);

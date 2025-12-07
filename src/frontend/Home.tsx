@@ -66,7 +66,7 @@ export default function OffcanvasNavbar() {
 
       <nav className="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">Offcanvas Navbar</a>
+          <a className="navbar-brand" href="#">Accueil</a>
           <button
             className="navbar-toggler p-0 border-0"
             type="button"
@@ -87,7 +87,7 @@ export default function OffcanvasNavbar() {
 
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                  Settings
+                  Paramètres
                 </a>
                 <ul className="dropdown-menu">
                   <li><a className="dropdown-item" href="#">Action</a></li>
@@ -110,7 +110,7 @@ export default function OffcanvasNavbar() {
         <nav className="nav" aria-label="Secondary navigation">
           <a className="nav-link active" aria-current="page" href="#">Dashboard</a>
           <a className="nav-link" href="#">
-            Friends <span className="badge text-bg-light rounded-pill align-text-bottom">27</span>
+            Amis <span className="badge text-bg-light rounded-pill align-text-bottom">27</span>
           </a>
           <a className="nav-link" href="#">Explore</a>
           <a className="nav-link" href="#">Suggestions</a>
@@ -125,8 +125,8 @@ export default function OffcanvasNavbar() {
         <div className="d-flex align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
           <img className="me-3" src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo-white.svg" width="48" height="38" alt="" />
           <div className="lh-1">
-            <h1 className="h6 mb-0 text-white lh-1">Bootstrap</h1>
-            <small>Since 2011</small>
+            <h1 className="h6 mb-0 text-white lh-1">Hello !</h1>
+            <small>Since 2025</small>
           </div>
         </div>
 
