@@ -164,7 +164,7 @@ export default function OffcanvasNavbar() {
                   <strong className="text-gray-dark">Full Name</strong>
                   <a href="#">Follow</a>
                 </div>
-                <span className="d-block">@username</span>
+                <span className="d-block">Elliot Alderson</span>
               </div>
             </div>
           ))}
