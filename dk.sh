@@ -18,21 +18,21 @@ show_help() {
     echo "========================================="
     echo "Docker Compose Wrapper Script (dk)"
     echo "========================================="
-    echo "Utilisation : ./dk.sh <command> [service_name]"
+    echo "Utilisation : dk <command> [service_name]"
     echo ""
     echo "Commandes disponibles :"
-    echo "  up [service]    : Construit et démarre (avec -d)."
+    echo "  up [service]    : Construit et démarre (avec --build si pas de service spécifié)."
     echo "  start [service] : Démarre les conteneurs existants."
     echo "  stop [service]  : Arrête les conteneurs."
-    echo "  down            : Arrête et supprime les conteneurs et les réseaux."
-    echo "  sh [service]    : Ouvre un shell interactif (sh) dans un conteneur."
+    echo "  down            : Arrête et supprime les conteneurs, images et volumes locaux."
+    echo "  sh [service]    : Ouvre un shell interactif (sh) ou le client psql dans un conteneur."
     echo "  ps              : Affiche l'état des conteneurs."
     echo "  logs [service]  : Affiche les logs."
     echo ""
     echo "Exemples :"
-    echo "  ./dk.sh up"
-    echo "  ./dk.sh stop devops-app-1"
-    echo "  ./dk.sh sh dashboard_db"
+    echo "  dk up"
+    echo "  dk stop devops-app-1"
+    echo "  dk sh dashboard_db (Se connecte directement à psql)"
 }
 
 # Vérification de l'argument
@@ -44,8 +44,6 @@ fi
 # Logique des commandes
 case "$COMMAND" in
     up)
-        # Utiliser l'option --build si l'utilisateur ne fournit pas de service spécifique.
-        # Sinon, un simple up est suffisant.
         if [ -z "$SERVICE" ]; then
             echo "Démarrage et construction des conteneurs..."
             docker compose up --build -d
@@ -63,7 +61,7 @@ case "$COMMAND" in
         docker compose stop "$SERVICE"
         ;;
     down)
-        echo "Arrêt et suppression des conteneurs, images et réseaux..."
+        echo "Arrêt et suppression des conteneurs, images et volumes locaux..."
         docker compose down --rmi local --volumes --remove-orphans
         ;;
     ps)
@@ -80,12 +78,20 @@ case "$COMMAND" in
         ;;
     sh)
         if [ -z "$SERVICE" ]; then
-            echo "Erreur : Spécifiez le nom du service pour le shell (ex: ./dk.sh sh devops-app-1)."
+            echo "Erreur : Spécifiez le nom du service pour le shell (ex: dk sh devops-app-1)."
             exit 1
         fi
-        echo "Connexion au shell sh dans le conteneur $SERVICE (tapez 'exit' pour quitter)..."
-        # Tenter d'exécuter sh, car l'image alpine n'a pas bash
-        docker exec -it "$SERVICE" sh
+        
+        # Logique spécifique pour PostgreSQL : Connexion directe au client psql
+        if [ "$SERVICE" == "dashboard_db" ] || [ "$SERVICE" == "db" ]; then
+            echo "Connexion au client psql dans le conteneur $SERVICE (tapez '\q' pour quitter)..."
+            # Utilisation de 'docker compose exec' avec les bonnes variables d'environnement
+            docker compose exec "$SERVICE" psql -U user_dashboard -d dashboard_data
+        else
+            echo "Connexion au shell sh dans le conteneur $SERVICE (tapez 'exit' pour quitter)..."
+            # Pour les autres conteneurs (ex: Nginx), nous utilisons le shell sh
+            docker compose exec "$SERVICE" sh
+        fi
         ;;
     *)
         echo "Erreur : Commande non reconnue : '$COMMAND'"
