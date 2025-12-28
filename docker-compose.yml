@@ -1,20 +1,42 @@
 version: '3.8'
 
 services:
-  # Service de votre application front-end (à adapter)
-  app:
-    build: .
+  # Service Backend API
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.backend
     ports:
-      - "3000:80"
+      - "5000:5000"
     depends_on:
       - db
     environment:
-      # L'application se connectera à 'db' sur le port 5432
       DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USER: user_dashboard
+      DATABASE_PASSWORD: secure_password
+      DATABASE_NAME: dashboard_data
+      JWT_SECRET: votre_secret_jwt_a_changer
+      NODE_ENV: development
+    volumes:
+      - ./src/backend:/app
+      - /app/node_modules
 
-  # Service de la base de données PostgreSQL
+  # Service Frontend
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+
+  # Service PostgreSQL
   db:
-    image: postgres:16-alpine # Utiliser une image légère et stable
+    image: postgres:16-alpine
     container_name: dashboard_db
     restart: always
     environment:
@@ -22,12 +44,15 @@ services:
       POSTGRES_PASSWORD: secure_password
       POSTGRES_DB: dashboard_data
     ports:
-      # Exposer le port pour l'accès local par un outil (comme DBeaver, VS Code)
-      - "5432:5432" 
+      - "5432:5432"
     volumes:
-      # CECI EST CRUCIAL : Assure la persistance des données
-      # Même si le conteneur 'db' est arrêté ou supprimé, les données restent sur votre PC (dans le volume 'postgres_data')
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_dashboard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
