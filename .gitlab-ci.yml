@@ -1,0 +1,44 @@
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+stages:
+  - lint
+  - test
+  - build
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|dev|uat|prod)$/'
+
+variables:
+  SAST_EXCLUDED_PATHS: "node_modules,dist,coverage"
+  GIT_DEPTH: "0"
+
+lint:
+  image: node:22-alpine
+  stage: lint
+  script:
+    - npm ci
+    - npm run lint
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+
+test:
+  image: node:22-alpine
+  stage: test
+  script:
+    - npm ci
+    - npm test
+
+build:
+  image: node:22-alpine
+  stage: build
+  script:
+    - npm ci
+    - npm run build
