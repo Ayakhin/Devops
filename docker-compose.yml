@@ -1,34 +1,49 @@
-version: '3.8'
-
 services:
-  # Service de votre application front-end (à adapter)
-  app:
-    build: .
-    ports:
-      - "3000:80"
-    depends_on:
-      - db
-    environment:
-      # L'application se connectera à 'db' sur le port 5432
-      DATABASE_HOST: db
-
-  # Service de la base de données PostgreSQL
   db:
-    image: postgres:16-alpine # Utiliser une image légère et stable
-    container_name: dashboard_db
-    restart: always
+    image: mysql:8.4
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: user_dashboard
-      POSTGRES_PASSWORD: secure_password
-      POSTGRES_DB: dashboard_data
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-robot_root_local}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devops_dashboard}
+      MYSQL_USER: ${MYSQL_USER:-dashboard}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-robot_dev_local}
     ports:
-      # Exposer le port pour l'accès local par un outil (comme DBeaver, VS Code)
-      - "5432:5432" 
+      - "127.0.0.1:${MYSQL_PORT:-3307}:3306"
     volumes:
-      # CECI EST CRUCIAL : Assure la persistance des données
-      # Même si le conteneur 'db' est arrêté ou supprimé, les données restent sur votre PC (dans le volume 'postgres_data')
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+      - ./init-db/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-robot_root_local}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devops_dashboard}
+      MYSQL_USER: ${MYSQL_USER:-dashboard}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-robot_dev_local}
+    ports:
+      - "127.0.0.1:${API_PORT:-5000}:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:80"
+    depends_on:
+      - api
 
 volumes:
-  postgres_data:
-    driver: local
+  mysql_data:
