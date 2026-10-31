@@ -1,5 +1,8 @@
 # Nightshift — DevOps Control
 
+<img width="1239" height="632" alt="image" src="https://github.com/user-attachments/assets/cb15045a-a472-4ab2-a2bd-368dd29457a0" />
+
+
 Dashboard DevOps sombre à l’esthétique terminale rouge et noire, construit avec React, Vite, Tailwind CSS, Recharts, Express et MySQL.
 
 ## Démarrage avec Docker
